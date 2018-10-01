@@ -23,17 +23,9 @@ void HttpCLient::onText(QString text)
 
 void HttpCLient::onFinished(QNetworkReply* reply) {
 
-    if (reply->error()) {
-        qDebug() << "Got SOMEBAD: " << reply->errorString();
-        return;
-    }
+    ResponseHandler handler(reply);
 
-    QString resp = reply->readAll();
-    QJsonDocument doc = QJsonDocument::fromJson(resp.toUtf8());
-    QJsonArray json = doc["text"].toArray();
-    QString translated = json[0].toString();
-
-    emit sendText(translated);
+    emit sendText(handler.getTranslate());
 }
 
 
@@ -51,4 +43,23 @@ Request::Request()
 QNetworkRequest* Request::get(QString text)
 {
     return new QNetworkRequest(QUrl(req.arg(key, text)));
+}
+
+ResponseHandler::ResponseHandler(QNetworkReply *reply)
+{
+    if (reply->error()) {
+        qDebug() << "Got SOMEBAD: " << reply->errorString();
+    }
+
+    QString resp = reply->readAll();
+
+    QJsonDocument doc = QJsonDocument::fromJson(resp.toUtf8());
+    QJsonArray json = doc["text"].toArray();
+
+    translated = json[0].toString();
+}
+
+QString ResponseHandler::getTranslate()
+{
+    return translated;
 }

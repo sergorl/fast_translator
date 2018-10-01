@@ -25,8 +25,15 @@ private:
 
 struct ResponseHandler {
 
+    ResponseHandler(QNetworkReply* reply);
 
+    QString getTranslate();
+
+private:
+    QString translated;
 };
+
+
 
 class HttpCLient : public QObject  {
     Q_OBJECT
